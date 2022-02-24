@@ -4,7 +4,7 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.tensorboard import SummaryWriter
 import os
-from load_dataset import MyDataset
+from main import MyDataset
 import matplotlib.pyplot as plt
 
 
@@ -20,7 +20,7 @@ if os.path.exists("model.pth"):
 net = net.to(device)
 
 batch_size = 1
-train_data = MyDataset("./dataset_pl")
+train_data = MyDataset(r"C:\Users\lilia\PycharmProjects\BoyGirlTrain\data")
 train_loader = DataLoader(
     train_data,
     batch_size=batch_size,
@@ -37,7 +37,10 @@ optimizer = torch.optim.SGD(
     weight_decay=0.0005
 )
 start_from = 0
-num_epochs = 100000000000000000
+num_epochs = 10
+lossesl = []
+
+
 for e in range(start_from, start_from + num_epochs, 1):
     net.train()
     running_loss = 0
@@ -54,9 +57,16 @@ for e in range(start_from, start_from + num_epochs, 1):
 
         running_loss += losses.item()
         print("Epoch %d(%d/%d): train_loss: %.4f" % (e, batch, len(train_loader), running_loss / batch))
+        lossesl.append(running_loss / batch)
+        plt.ion()
+        plt.cla()
 
 
-        # plt.show()
+        plt.plot(lossesl)
+
+        plt.show()
+        plt.pause(0.01)
+        plt.ioff()
 
     running_loss = running_loss / len(train_loader)
     writer.add_scalars("loss", {"train": running_loss}, e)
